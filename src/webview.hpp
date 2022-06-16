@@ -11,8 +11,8 @@ namespace httplib {
 
 namespace Mck
 {
-    typedef std::function<void(std::string, std::string, void*)> bindingFn;
-    typedef std::pair<bindingFn *, void *> bindingCtx;
+    typedef std::function<void(int argIdx, const std::string& args, void* userData)> bindingFn;
+    typedef std::pair<bindingFn*, void*> bindingCtx;
 
     class WebView : public Gtk::Widget
     {

@@ -4,12 +4,12 @@
 
 namespace Mck
 {
-    void RecvGuiMessage(std::string id, std::string msg, void* arg) {
-        std::cout << "Msg from GUI: " << id << " : " << msg << std::endl;
+    void RecvGuiMessage(int i, const std::string &args, void* userData) {
+        std::cout << "Msg from GUI: " << i << " : " << args << std::endl;
 
-        auto win = static_cast<MainWindow *>(arg);
+        auto win = static_cast<MainWindow *>(userData);
 
-        win->SendGuiMessage("console.log('[ECHO]','" + msg + "');");
+        win->SendGuiMessage("console.log('[ECHO]','" + args + "');");
     }
 
     MainWindow::MainWindow() : m_webview(new Mck::WebView())

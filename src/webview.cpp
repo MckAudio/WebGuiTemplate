@@ -2,9 +2,15 @@
 #include <httplib.h>
 #include <cstdio>
 #include <iostream>
-#include <json/json.h>
 #include <JavaScriptCore/JavaScript.h>
 
+#define MCK_USE_RAPIDJSON
+
+#if defined(MCK_USE_JSONPP)
+#include <json/json.h>
+#elif defined(MCK_USE_RAPIDJSON)
+#include <rapidjson/document.h>
+#endif
 namespace Mck
 {
     WebView::WebView()
@@ -121,6 +127,7 @@ namespace Mck
 
     void WebView::OnMessage(const std::string &msg)
     {
+#if defined(MCK_USE_JSONPP)
         Json::Value root;
         Json::Reader reader;
         if (reader.parse(msg, root) == false)
@@ -131,19 +138,30 @@ namespace Mck
 
         auto method = root["method"].asString();
         auto params = root["params"];
-        std::printf("New data from method \'%s\'\n", method.c_str());
-        for (Json::Value::ArrayIndex i = 0; i < params.size(); i++)
-        {
-            std::printf("\t%s\n", params[i].asCString());
-        }
 
         if (m_bindings.contains(method))
         {
             auto *fn = m_bindings[method]->first;
-            for (Json::Value::ArrayIndex  i = 0; i < params.size(); i++)
+            for (Json::Value::ArrayIndex i = 0; i < params.size(); i++)
             {
-                (*fn)(std::to_string(i), params[i].asString(), m_bindings[method]->second);
+                (*fn)(i, params[i].asString(), m_bindings[method]->second);
             }
         }
+#elif defined(MCK_USE_RAPIDJSON)
+        rapidjson::Document doc;
+        doc.Parse(msg.c_str());
+
+        auto method = std::string{doc["method"].GetString()};
+        auto params = doc["params"].GetArray();
+
+        if (m_bindings.contains(method))
+        {
+            auto *fn = m_bindings[method]->first;
+            for (int i = 0; i < params.Size(); i++)
+            {
+                (*fn)(i, params[i].GetString(), m_bindings[method]->second);
+            }
+        }
+#endif
     }
 }

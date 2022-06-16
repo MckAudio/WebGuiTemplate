@@ -10,5 +10,5 @@ default: mkdir
 mkdir:
 	mkdir -p bin || true
 
-run:
+run: default
 	WEBKIT_INSPECTOR_SERVER=127.0.0.1:1234 ./${OUT}

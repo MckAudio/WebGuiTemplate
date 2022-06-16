@@ -3,7 +3,6 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
                 "/usr/include/gtkmm-4.0",
                 "/usr/lib/gtkmm-4.0/include",
                 "/usr/include/giomm-2.68",
@@ -36,12 +35,13 @@
                 "/usr/lib/pangomm-2.48/include",
                 "/usr/include/gtk-4.0/unix-print",
                 "/usr/include/webkitgtk-5.0",
-                "/usr/include/libsoup-3.0"
+                "/usr/include/libsoup-3.0",
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
-            "cppStandard": "c++14",
+            "cppStandard": "c++20",
             "intelliSenseMode": "linux-clang-x64"
         }
     ],

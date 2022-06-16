@@ -13,6 +13,8 @@ namespace Mck {
 
             void SetFullscreen(bool fs = true);
 
+            void SendGuiMessage(const std::string &msg);
+
         private:
             Mck::WebView *m_webview;
     };

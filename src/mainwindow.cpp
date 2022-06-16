@@ -1,8 +1,17 @@
 #include "mainwindow.hpp"
 #include "webview.hpp"
+#include <iostream>
 
 namespace Mck
 {
+    void RecvGuiMessage(std::string id, std::string msg, void* arg) {
+        std::cout << "Msg from GUI: " << id << " : " << msg << std::endl;
+
+        auto win = static_cast<MainWindow *>(arg);
+
+        win->SendGuiMessage("console.log('[ECHO]','" + msg + "');");
+    }
+
     MainWindow::MainWindow() : m_webview(new Mck::WebView())
     {
         m_webview->LoadGui("www");
@@ -10,6 +19,10 @@ namespace Mck
         set_title("MckWebkitTest");
         set_resizable(false);
         set_default_size(800, 480);
+
+        //m_webview->RunCode("alert('Hello GTK')");
+
+        m_webview->BindFn("SendToBackend", RecvGuiMessage, this);
     }
 
     MainWindow::~MainWindow() {
@@ -26,5 +39,10 @@ namespace Mck
         {
             unfullscreen();
         }
+    }
+
+    void MainWindow::SendGuiMessage(const std::string &msg)
+    {
+        m_webview->RunCode(msg);
     }
 }

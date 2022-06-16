@@ -3,6 +3,7 @@
 #include <webkit2/webkit2.h>
 #include <thread>
 #include <string>
+#include <map>
 
 namespace httplib {
     class Server;
@@ -10,6 +11,9 @@ namespace httplib {
 
 namespace Mck
 {
+    typedef std::function<void(std::string, std::string, void*)> bindingFn;
+    typedef std::pair<bindingFn *, void *> bindingCtx;
+
     class WebView : public Gtk::Widget
     {
     public:
@@ -23,9 +27,17 @@ namespace Mck
 
         bool LoadGui(const std::string &path);
 
+        bool RunCode(const std::string &js);
+
+        bool BindFn(const std::string &name, bindingFn fn, void *arg);
+
     private:
+        void AddScript(const std::string &js);
+        void OnMessage(const std::string &msg);
+
         bool m_initialized;
         std::thread m_thread;
         httplib::Server* m_server;
+        std::map<std::string, bindingCtx *> m_bindings;
     };
 }

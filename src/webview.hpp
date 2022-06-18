@@ -5,14 +5,15 @@
 #include <string>
 #include <map>
 
-namespace httplib {
+namespace httplib
+{
     class Server;
 }
 
 namespace Mck
 {
-    typedef std::function<void(int argIdx, const std::string& args, void* userData)> bindingFn;
-    typedef std::pair<bindingFn*, void*> bindingCtx;
+    typedef std::function<void(int argIdx, const std::string &args, void *userData)> bindingFn;
+    typedef std::pair<bindingFn *, void *> bindingCtx;
 
     class WebView : public Gtk::Widget
     {
@@ -25,7 +26,7 @@ namespace Mck
             return WEBKIT_WEB_VIEW(gobj());
         };
 
-        bool LoadGui(const std::string &path);
+        bool LoadGui(const std::string &path, unsigned port = 7689);
 
         bool RunCode(const std::string &js);
 
@@ -37,7 +38,7 @@ namespace Mck
 
         bool m_initialized;
         std::thread m_thread;
-        httplib::Server* m_server;
-        std::map<std::string, bindingCtx *> m_bindings;
+        httplib::Server *m_server;
+        std::map<std::string, bindingCtx> m_bindings;
     };
 }

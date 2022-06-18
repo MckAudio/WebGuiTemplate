@@ -1,5 +1,22 @@
 # Web GUI Template
 
+## Dependencies
+
+### Manjaro / Arch
+```bash
+sudo pacman -S gtk4 gtkmm-4.0 webkit2gtk-5.0 rapidjson
+```
+
+### Fedora
+```bash
+
+```
+
+### Debian / Ubuntu
+```bash
+
+```
+
 ## Debugging
 
 ### GTK

@@ -2,15 +2,13 @@
 #include <httplib.h>
 #include <cstdio>
 #include <iostream>
+#include <filesystem>
 #include <JavaScriptCore/JavaScript.h>
 
-#define MCK_USE_RAPIDJSON
-
-#if defined(MCK_USE_JSONPP)
-#include <json/json.h>
-#elif defined(MCK_USE_RAPIDJSON)
 #include <rapidjson/document.h>
-#endif
+
+namespace fs = std::filesystem;
+
 namespace Mck
 {
     WebView::WebView()
@@ -50,15 +48,21 @@ namespace Mck
         delete m_server;
     }
 
-    bool WebView::LoadGui(const std::string &path)
+    bool WebView::LoadGui(const std::string &path, unsigned port)
     {
         if (m_initialized)
         {
             return false;
         }
 
-        unsigned port = 7689;
-        if (m_server->set_mount_point("/", path.c_str()) == false)
+        fs::path p(path);
+
+        if (p.is_absolute() == false) {
+            p = fs::current_path();
+            p.append(path);
+        }
+
+        if (m_server->set_mount_point("/", p.c_str()) == false)
         {
             std::printf("Failed to load gui from path \"%s\"\n", path.c_str());
         }
@@ -114,7 +118,7 @@ namespace Mck
 
         AddScript(js);
 
-        m_bindings[name] = new bindingCtx(new bindingFn(fn), arg);
+        m_bindings[name] = std::pair<bindingFn *, void *>(new bindingFn(fn), arg);
 
         return true;
     }
@@ -127,27 +131,6 @@ namespace Mck
 
     void WebView::OnMessage(const std::string &msg)
     {
-#if defined(MCK_USE_JSONPP)
-        Json::Value root;
-        Json::Reader reader;
-        if (reader.parse(msg, root) == false)
-        {
-            std::printf("Failed to parse message \'%s\' from backend.\n", msg.c_str());
-            return;
-        }
-
-        auto method = root["method"].asString();
-        auto params = root["params"];
-
-        if (m_bindings.contains(method))
-        {
-            auto *fn = m_bindings[method]->first;
-            for (Json::Value::ArrayIndex i = 0; i < params.size(); i++)
-            {
-                (*fn)(i, params[i].asString(), m_bindings[method]->second);
-            }
-        }
-#elif defined(MCK_USE_RAPIDJSON)
         rapidjson::Document doc;
         doc.Parse(msg.c_str());
 
@@ -156,12 +139,10 @@ namespace Mck
 
         if (m_bindings.contains(method))
         {
-            auto *fn = m_bindings[method]->first;
-            for (int i = 0; i < params.Size(); i++)
+            for (size_t i = 0; i < params.Size(); i++)
             {
-                (*fn)(i, params[i].GetString(), m_bindings[method]->second);
+                (*m_bindings[method].first)(i, params[i].GetString(), m_bindings[method].second);
             }
         }
-#endif
     }
 }

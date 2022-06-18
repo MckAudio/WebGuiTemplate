@@ -4,12 +4,9 @@
 
 namespace Mck
 {
-    void RecvGuiMessage(int i, const std::string &args, void* userData) {
-        std::cout << "Msg from GUI: " << i << " : " << args << std::endl;
-
+    void MessageFromFrontend(int i, const std::string &args, void* userData) {
         auto win = static_cast<MainWindow *>(userData);
-
-        win->SendGuiMessage("console.log('[ECHO]','" + args + "');");
+        win->MessageFromFrontend(i, args);
     }
 
     MainWindow::MainWindow() : m_webview(new Mck::WebView())
@@ -22,7 +19,7 @@ namespace Mck
 
         //m_webview->RunCode("alert('Hello GTK')");
 
-        m_webview->BindFn("SendToBackend", RecvGuiMessage, this);
+        m_webview->BindFn("SendToBackend", Mck::MessageFromFrontend, this);
     }
 
     MainWindow::~MainWindow() {
@@ -43,6 +40,12 @@ namespace Mck
 
     void MainWindow::SendGuiMessage(const std::string &msg)
     {
-        m_webview->RunCode(msg);
+        m_webview->RunCode("MessageFromBackend('" + msg + "');");
+    }
+
+    void MainWindow::MessageFromFrontend(int i, const std::string &args)
+    {
+        std::cout << "Message from Frontend: " << i << " : " << args << std::endl;
+        m_webview->RunCode("console.log('[ECHO]','" + args + "');");
     }
 }

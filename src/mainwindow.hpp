@@ -15,6 +15,8 @@ namespace Mck {
 
             void SendGuiMessage(const std::string &msg);
 
+            void MessageFromFrontend(int i, const std::string &args);
+
         private:
             Mck::WebView *m_webview;
     };
